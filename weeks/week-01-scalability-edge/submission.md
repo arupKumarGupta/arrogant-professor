@@ -75,7 +75,7 @@ flowchart LR
     client -- protobuf_raw_data ----> gw
 
     
-    gw -- protobuf_raw_data ----> eb --> Apacheflink
+    gw -- protobuf_raw_data ----> eb --protobuf_raw_data----> Apacheflink
 
 
     %% Clean up the border lines around your invisible user row wrappers
