@@ -72,9 +72,8 @@ flowchart LR
 
 
     %% Clean mapping for multi-node outputs to ensure linear tracking
-    wasm_enc1 -- protobuf_raw_data ----> gw
-    wasm_enc2 -- protobuf_raw_data ----> gw
-    wasm_enc3 -- protobuf_raw_data ----> gw
+    client -- protobuf_raw_data ----> gw
+
     
     gw -- protobuf_raw_data ----> eb --> Apacheflink
 
