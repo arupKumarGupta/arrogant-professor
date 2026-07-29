@@ -6,7 +6,7 @@ Welcome to your 16-Week Zero-to-Hero System Design and DSA training course. This
 
 | Week | Type | Topic | Status | Grade | Folder |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **01** | HLD | Scalability, Latency & Edge Computing | 🟡 In Progress | - | [week-01-scalability-edge](file:///Volumes/excalibur/projects/system-design-teacher/weeks/week-01-scalability-edge) |
+| **01** | HLD | Scalability, Latency & Edge Computing | 🔴 Failed | 8/100 | [week-01-scalability-edge](file:///Volumes/excalibur/projects/system-design-teacher/weeks/week-01-scalability-edge) |
 | **02** | LLD/DSA | Concurrency & Rate Limiting (Sliding Window/Deque) | 🔴 Not Started | - | [week-02-concurrency-limiter](file:///Volumes/excalibur/projects/system-design-teacher/weeks/week-02-concurrency-limiter) |
 | **03** | HLD | Global Databases & Local-First Architectures (CRDTs/Spanner) | 🔴 Not Started | - | [week-03-global-dbs-crdt](file:///Volumes/excalibur/projects/system-design-teacher/weeks/week-03-global-dbs-crdt) |
 | **04** | LLD/DSA | Storage Engine Internals (SkipLists/Radix Trees) | 🔴 Not Started | - | [week-04-storage-engines](file:///Volumes/excalibur/projects/system-design-teacher/weeks/week-04-storage-engines) |

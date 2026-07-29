@@ -1,98 +1,88 @@
-# Global Metrics Ingestion Engine
+# Global Unified Metric Ingestion Pipeline
 
-## Overview
-Engine to collect realtime telemetry - cpu, memory, custom application metric from millions of cliens running worldwide.
+## Problem Statement
+Design a unified metric ingestion pipeline that is capable of
+serving telemetry data like CPU usage, memory, temp. of a system globally.
 
-## Requirements
+## Function Requirements
+1. Global Telemetry API <br> Edge Facing API for clients to send telemetry payload.
+2. Metric Prioritisation <br> Prioritise metrics in Business Telemetry and Critical alerts and standard alerts.
+3. Edge batching and Aggregation <br> Aggregate, compress and batch telemetry at edge POPs (Point of Presence) with 10:1 reduction
+4. WAN <br> Transport batch from edge POP to central ingestion system
+5. Central Queueing and Processing
+6. Long term analytic storage - 30d retention
+7. Deduplication of late arriving and out of order events
 
-### Traffic Scale
+## Non Funtional Requirements
+### Quality Attributes and SLA targets
+
+<ol>
+<li> Scale and throughput 
 <ul>
-<li> 50billion request per day distributed globally. </li>
-<li> Non uniform traffic. Assumption: standard 3:1 during peak or high traffic hours </li>
-</ul>    
+<li>
+Daily volume = 50B request per day 
+</li>
+<li>
+Peak hours traffic volume is 3:1
+</li>
+</ul>
+</li>
+<li>
+<ul>
+<li>
+Latency SLA
+</li>
+</ul>
+<ul>
+TP99 < 50ms globally
+</ul>   
+</li>
+<li>
+<ul>
+Data Durability
+<li>
+continuous Operation during regional n/w outage (eg us-west-1 outage)
+</li>
+<li>
+Data Retention - 30days
+</li>
+</ul>
+</li>
 
-### Capacity Estimation
-1. Client side ingestion api call < 50ms globally
-2. Computing occurs at edge points-of-presence (POPs) using lightweight wasm/V8
-3. Memory limit is strictly 50MB per worker execution context. No long running background processes allowed on the edge nodes
-4. Zero data loss
-5. Resileiancy against regional network partitions
-###
-4. Architecture Diagram
+<li>
+Execution Contraints
+<ul>
+<li>No long running Daemons on Edge POPs</li>
+<li>Max 50MB memory on edge workers</li>
+<li>Payload Size BW: 1.2KB</li>
+<li>2 hr WAN outage support</li>
+<li>Ephemeral Worker - High freq cold starts and dynamic scaling without exhausting central connection pools</li>
+</ul>
+</li>
+</ol>
+
+## Deliverable Design Requirements
+
+### Back of the envelop math
+1. Avg and Peak ingress RPS (MBps) and Bandwidth (Gbps)
+2. Edge Buffer write rate vs Immediate fwd write data
+3. Central storage daily / s write volume post 10:1 compression
+
+### HLD
+End to End Mermaid diagram<br>
+Geo Routing, Edge compute, Edge Buffer, Wan transport, Central queue
+Stream aggregation, Analytics DB
+
 ```mermaid
-flowchart LR
-        subgraph client [Clients]
-            direction TB
-            
-            subgraph r1 [ ]
-                direction LR
-                User1 --> wasm_enc1[Wasm Protobuf Encoder]
-            end
 
-            subgraph r2 [ ]
-                direction LR
-                User2 --> wasm_enc2[Wasm Protobuf Encoder]
-            end
-            
-            subgraph r3 [ ]
-                direction LR
-                User3 --> wasm_enc3[Wasm Protobuf Encoder]
-            end
-            
-            %% Corrected: Linked row containers instead of inner nodes, broken into pairs
-            r1 ~~~ r2
-            r2 ~~~ r3
-        end
-
-        subgraph Gateway
-            direction TB
-            gw
-            Lb1[Load Balancer1]
-            Lb2[Load Balancer2]
-            
-            gw --> Lb1 & Lb2
-        end
-
-        subgraph eb [Event Broker]
-            direction TB
-            k1[Kafka1]
-            k2[Kafka2]
-            k3[Kafka3]
-            
-            %% Corrected: Broken down into independent pairs to avoid engine panic
-            k1 ~~~ k2
-            k2 ~~~ k3
-        end        
-
-        subgraph Apacheflink
-            f1[Event consumer 1]
-            f2[Event consumer 2]
-            f1 ~~~ f2
-        end
-
-
-    %% Clean mapping for multi-node outputs to ensure linear tracking
-    client -- protobuf_raw_data ----> gw
-
-    
-    gw -- protobuf_raw_data ----> eb --protobuf_raw_data----> Apacheflink
-
-
-    %% Clean up the border lines around your invisible user row wrappers
-    style r1 fill:none,stroke:none;
-    style r2 fill:none,stroke:none;
-    style r3 fill:none,stroke:none;
 ```
 
-5. Components
-6. Data Flow
-7. Database Design
-8. API Design
-9. Scaling Strategy
-10. Reliability & Disaster Recovery
-11. Security    
-12. Monitoring
-13. Deployment Architecture
-14. Technology Stack
-15. Risks & Trade-offs
-16. Future Enhancements
+### Schema Design
+1. Transient edge layout schema
+2. Central Time series DB schema
+
+### Architectural Tradeoffs Defence
+1. PACELC classification
+2. Cold start and connection pool exhaustion
+3. Edge memory buffer for 2 hr WAN outage
+4. Pipeline dedup & handle out of order events
